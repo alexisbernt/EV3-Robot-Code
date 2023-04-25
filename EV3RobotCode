@@ -1,0 +1,62 @@
+#!/usr/bin/env pybricks-micropython
+from pybricks.hubs import EV3Brick
+from pybricks.ev3devices import Motor, UltrasonicSensor
+from pybricks.parameters import Port
+
+
+# Create your objects here. Initialize the EV3 brick
+ev3 = EV3Brick()
+
+
+# Speed of the motor deg/s
+speed = 1020*2
+
+
+# The robot will "beep" before running the program
+ev3.speaker.beep()
+
+
+# Initialize the Ultrasonic Sensor. It is used to detect
+# obstacles as the robot drives around.
+obstacle_sensor = UltrasonicSensor(Port.S4)
+
+
+# Initialize the motors.
+frontleft = Motor(Port.B)
+frontright = Motor(Port.C)
+backleft = Motor(Port.A)
+backright = Motor(Port.D)
+
+
+class DriveBase:
+    def __init__(self, frontleft, frontright, backleft, backright):
+        self.frontleft = frontleft
+        self.frontright = frontright
+        self.backleft = backleft
+        self.backright = backright
+   
+    def turn(self, speed):
+        self.frontleft.run(speed)
+        self.frontright.run(-1*speed)
+        self.backleft.run(speed*-1)
+        self.backright.run(-1*speed*-1)
+    def forward(self, speed):
+        # Forward
+        self.frontleft.run(speed)
+        self.frontright.run(speed)
+        self.backleft.run(speed*-1)
+        self.backright.run(speed*-1)
+
+
+# Initialize the drive base.
+robot = DriveBase(frontleft, frontright, backleft, backright)
+
+
+# The logic is enclosed here:
+while True:
+    # For a distance between 100 and 915 mm the robot will drive at the fastest speed
+    if obstacle_sensor.distance() < 915:
+        robot.forward(speed)
+    # In this case the enemy is further than 915 mm. The robot will turn at a rate of 180 degrees
+    else:
+        robot.turn(speed)
